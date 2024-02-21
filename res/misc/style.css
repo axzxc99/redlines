@@ -1,0 +1,12 @@
+#bg
+{
+	background-image: url('globe.gif');
+	background-size: contain;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	filter: blur(8px);
+	-webkit-filter: blur(8px);
+}
