@@ -1,12 +1,109 @@
-#bg
-{
-	background-image: url('globe.gif');
-	background-size: contain;
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100vw;
-	height: 100vh;
-	filter: blur(8px);
-	-webkit-filter: blur(8px);
+body {
+    margin: 0;
+    padding: 0;
+}
+
+#bg {
+    background-image: url('globe.gif');
+    background-size: contain;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -99;
+    filter: blur(2px);
+    -webkit-filter: blur(2px);
+}
+
+#searchForm {
+    display: none;
+}
+
+.topicSearch {
+    width: 80vw;
+    font-size: 2em;
+    color: #ffffff;
+    text-shadow: 2px 2px 5px black;
+    font-weight: bold;
+    background: none;
+    border: 1px solid #ffffff;
+    border-radius: 20px;
+    text-align: center;
+    margin: 25vh calc(10vw - 1px) 0;
+    font-family: monospace;
+    backdrop-filter: blur(10px);
+    box-shadow: 0px 0 10px 0px rgb(255 255 255 / 50%);
+}
+
+.startSourceDiv {
+    width: calc(80vw - 2px);
+    margin: 30px 10vw 0;
+    backdrop-filter: blur(10px);
+    border-radius: 100px;
+    border: 1px solid white;
+}
+
+.startSource {
+    width: 30%;
+    border-radius: 30px;
+    height: 15vw;
+    background: rgb(255 255 255 / 75%);
+    display: inline-block;
+    margin: calc(2.5vw - 15px) calc(10% - 15px);
+    font-family: monospace;
+    padding: 15px;
+    font-weight: bold;
+    font-size: 1.3em;
+    text-align: center;
+}
+
+.startSource input {
+    width: 80%;
+    height: fit-content;
+    font-size: 4em;
+    font-family: monospace;
+    padding: 0;
+    margin: 0;
+    border-radius: 20px;
+}
+
+.pSource {
+}
+
+.sSource {
+}
+
+.startTitle {
+}
+
+.startTitle span {
+    font-size: 1.5em;
+    display: block;
+    margin: 10px 0;
+}
+
+.TPHandle {
+    position: fixed;
+    bottom: 0;
+    width: 20vw;
+    font-family: monospace;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+    font-size: 1.5em;
+    margin: 0 40vw;
+	/*animation-duration: 1s;*/
+	transition: bottom 1s;
+}
+
+.TPMain {
+    width: 85vw;
+    height: 85vh;
+    position: fixed;
+    bottom: -85vh;
+    background: rgb(212 212 212 / 95%);
+    margin: 0 7.5vw;
+    border-top-right-radius: 20px;
+    border-top-left-radius: 20px;
+	transition: bottom 1s;
 }
