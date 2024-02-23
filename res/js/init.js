@@ -4,11 +4,116 @@ var check = false;
 return check;}
 
 const isMobile = window.mobilecheck();
-const mobileStyles = ["topicSearch","startSourceDiv","TPHandle","TPMain"];
+const mobileStyles = ["topicSearch","startSourceDiv","TPHandle","TPMain","promptContainer","targetFrame"];
+var promptOpen = false;
 
 function sourcePrompt(isPrimary)
 {
-	
+	const promptBG = document.getElementById("promptBGContainer");
+	const promptContainer = document.getElementById("promptContainer");
+	promptBG.style["z-index"] = (promptOpen ? "-100":"100");
+	promptBG.style["filter"] = (promptOpen ? "opacity(0)":"opacity(1)");
+	const POSTForm = document.getElementById("POSTForm");
+	POSTForm.setAttribute("action","res/php/startTopic.php");
+	document.getElementById("POSTInput1").value = isPrimary;
+	const title = document.createElement("h2");
+	title.setAttribute("class","promptTitle"+((isMobile) ? "Mobile":""));
+	title.innerHTML = "Start with a  "+(isPrimary ? "Primary":"Secondary")+" Source";
+	promptContainer.appendChild(title);
+	promptContainer.setAttribute("class",promptContainer.getAttribute("class")+" "+(isPrimary ? "pPrompt":"sPrompt"));
+	const titleDescDiv = document.createElement("div");
+	titleDescDiv.setAttribute("class","titleDescDiv"+((isMobile) ? "Mobile":""));
+	const topicTitle = document.createElement("input");
+	topicTitle.setAttribute("type","text");
+	topicTitle.setAttribute("required","");
+	topicTitle.setAttribute("name","title");
+	topicTitle.setAttribute("id","topicTitle");
+	topicTitle.setAttribute("form",POSTForm.name);
+	topicTitle.setAttribute("placeholder","Topic Title");
+	topicTitle.setAttribute("class","topicTitle"+((isMobile) ? "Mobile":""));
+	titleDescDiv.appendChild(topicTitle);
+	titleDescDiv.appendChild(document.createElement("hr"));
+	const topicDesc = document.createElement("textarea");
+	topicDesc.setAttribute("class","topicDesc"+((isMobile) ? "Mobile":""));
+	topicDesc.setAttribute("required","");
+	topicDesc.setAttribute("style","");
+	topicDesc.setAttribute("name","desc");
+	topicDesc.setAttribute("id","topicDesc");
+	topicDesc.addEventListener("input", function (e){
+		this.style["height"] = "3.3em";
+		this.style["height"] = this.scrollHeight+"px";
+	});
+	topicDesc.setAttribute("placeholder","Topic Description");
+	topicDesc.setAttribute("form",POSTForm.name);
+	titleDescDiv.appendChild(topicDesc);
+	promptContainer.appendChild(titleDescDiv);
+	const linkFileDiv = document.createElement("div");
+	linkFileDiv.setAttribute("class","linkFileDiv"+((isMobile) ? "Mobile":""));
+	const topicLink = document.createElement("input");
+	topicLink.setAttribute("type","url");
+	topicLink.setAttribute("name","link");
+	topicLink.setAttribute("id","topicLink");
+	topicLink.setAttribute("placeholder","Source Link");
+	topicLink.setAttribute("value","");
+	topicLink.setAttribute("form",POSTForm.name);
+	topicLink.setAttribute("class","topicLink"+((isMobile) ? "Mobile":""));
+	linkFileDiv.appendChild(topicLink);
+	linkFileDiv.appendChild(document.createElement("hr"));
+	const fileInput = document.createElement("input");
+	fileInput.setAttribute("type","file");
+	fileInput.setAttribute("name","sourceFile");
+	fileInput.setAttribute("value","");
+	fileInput.setAttribute("id","sourceFile");
+	fileInput.setAttribute("form",POSTForm.name);
+	fileInput.setAttribute("accept",".pdf,.png,.mp3,.mp4,.jpg,.jpeg");
+	fileInput.setAttribute("class","sourceFile"+((isMobile) ? "Mobile":""));
+	linkFileDiv.appendChild(fileInput);
+	linkFileDiv.appendChild(document.createElement("hr"));
+	const sourceDesc = document.createElement("textarea");
+	sourceDesc.setAttribute("class","sourceDesc"+((isMobile) ? "Mobile":""));
+	sourceDesc.setAttribute("required","");
+	sourceDesc.setAttribute("style","");
+	sourceDesc.setAttribute("name","sDesc");
+	sourceDesc.setAttribute("id","sourceDesc");
+	sourceDesc.addEventListener("input", function (e){
+		this.style["height"] = "3.3em";
+		this.style["height"] = this.scrollHeight+"px";
+	});
+	sourceDesc.setAttribute("placeholder","Source Description");
+	sourceDesc.setAttribute("form",POSTForm.name);
+	linkFileDiv.appendChild(sourceDesc);
+	promptContainer.appendChild(linkFileDiv);
+	const subTopic = document.createElement("input");
+	subTopic.setAttribute("type","button");
+	subTopic.setAttribute("value","Submit Topic");
+	subTopic.setAttribute("onclick","if (!canSubmit()) {window.alert('Title and Description are REQUIRED.\\nAlso you must use a link or file to create a topic!')}else{document.getElementById('POSTForm').submit();closePrompt()}");
+	subTopic.setAttribute("class","topicSubButt"+((isMobile) ? "Mobile":""));
+	promptContainer.appendChild(subTopic);
+	//document.getElementById("POSTInput1").value = "";//title
+	promptOpen = true;
+}
+
+function canSubmit()
+{
+	const topicLink = document.getElementById('topicLink');
+	const sourceFile = document.getElementById('sourceFile');
+	const topicTitle = document.getElementById('topicTitle');
+	const topicDesc = document.getElementById('topicDesc');
+	const sourceDesc = document.getElementById('sourceDesc');
+	if ((topicLink === undefined || topicLink === null) || (sourceFile === undefined || sourceFile === null))
+		return false;
+	return ((topicLink.value.trim() != "" || sourceFile.value != "") && topicTitle.value.trim() != "" && topicDesc.value.trim() != "" || sourceDesc.value.trim() != "");
+}
+
+function closePrompt()
+{
+	const promptBG = document.getElementById("promptBGContainer");
+	const promptContainer = document.getElementById("promptContainer");
+	promptContainer.innerHTML = "";
+	promptContainer.setAttribute("class","promptContainer"+((isMobile) ? "Mobile":""));
+	promptBG.style["z-index"] = (promptOpen ? "-100":"100");
+	promptBG.style["filter"] = (promptOpen ? "opacity(0)":"opacity(1)");
+	promptOpen = false;
 }
 
 function searchTopics()

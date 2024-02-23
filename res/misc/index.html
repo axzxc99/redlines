@@ -1,6 +1,3 @@
-<?php
-	//echo "♠";
-?>
 <!DOCTYPE html>
 <html>
 	<head>
@@ -8,7 +5,7 @@
 		<link rel="stylesheet" type="text/css" href="res/misc/style.css">
 		<script src="res/js/init.js"></script>
 	</head>
-	<body>
+	<body onload="load()">
 		<div id="bg"></div>
 		<input type="search" id="topicSearch" placeholder="Search Topics" onkeydown="if(event.keyCode == 13) {searchTopics()}" name="topicSearch" form="GETForm" >
 		<div id="startSourceDiv">
@@ -28,14 +25,12 @@
 			<div id="promptContainer"></div>
 		</div>
 		<form style="display:none" name="GETForm" id="GETForm" method="GET" action="">
-			<input type="hidden" name="GETInput1" value="" id="GETInput1" form="GETForm">
-			<input type="hidden" name="GETInput2" value="" id="GETInput2" form="GETForm">
+			<input type="hidden" name="input1" value="" id="GETInput1" form="GETForm">
+			<input type="hidden" name="input2" value="" id="GETInput2" form="GETForm">
 		</form>
-		<form enctype="multipart/form-data" target="targetFrame" style="display:none" name="POSTForm" id="POSTForm" method="POST" action="">
-			<input type="hidden" name="POSTInput1" value="" id="POSTInput1" form="POSTForm">
-			<input type="hidden" name="POSTInput2" value="" id="POSTInput2" form="POSTForm">
+		<form style="display:none" name="POSTForm" id="POSTForm" method="POST" action="">
+			<input type="hidden" name="input1" value="" id="POSTInput1" form="POSTForm">
+			<input type="hidden" name="input2" value="" id="POSTInput2" form="POSTForm">
 		</form>
-		<iframe id="targetFrame" name="targetFrame"></iframe>
-		<script>load()</script>
 	</body>
 </html>
