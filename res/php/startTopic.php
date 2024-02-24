@@ -4,26 +4,25 @@
 	$link = trim($_POST["link"]);
 	$sourceDesc = trim($_POST["sDesc"]);
 	$isPrimary = ($_POST["POSTInput1"] == "true");
-	$topicListFile = fopen("../../.htList","r");
-	$topicListArr = array();
-	while (($line = fgets($topicListFile)) !== false)
-		array_push($topicListArr,intval(trim($line)));
-	fclose($topicListFile);
+	$topicListArr = array_diff(scandir("../../topics"), array('.', '..'));
 	if (count($topicListArr) >= 9000)
 		trigger_error("Too many topics!",E_USER_ERROR);
 	$newTopicID = rand(1000,9999);
 	while (in_array($newTopicID,$topicListArr))
 		$newTopicID = rand(1000,9999);
 	$topicListFile = fopen("../../.htList","a");
-	fwrite($topicListFile,(string)$newTopicID);
+	fwrite($topicListFile,(string)$newTopicID . "\n");
 	fclose($topicListFile);
 	$topicPath = "../../topics/" . (string)$newTopicID;
 	exec("mkdir $topicPath");
 	$topicAttFile = fopen($topicPath . "/.htAttributes","w");
-	fwrite($topicAttFile,(string)$newTopicID . "\n###\n$title\n###\n$desc");
+	fwrite($topicAttFile,(string)$newTopicID . "\n$title\n$desc");
 	fclose($topicAttFile);
-	$sourcePath = $topicPath . "/" . ($isPrimary ? "P":"S");
-	exec("mkdir $sourcePath");
+	$sourcePath = "$topicPath/" . ($isPrimary ? "P":"S");
+	exec("mkdir $topicPath/P");
+	exec("touch $topicPath/P/.htLinks");
+	exec("mkdir $topicPath/S");
+	exec("touch $topicPath/S/.htLinks");
 	if ($link != "")
 	{
 		$links = fopen("$sourcePath/.htLinks","w");

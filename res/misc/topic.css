@@ -1,0 +1,346 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+#bg {
+    background-image: url('globe.gif');
+    background-size: contain;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -99;
+    filter: blur(2px);
+    -webkit-filter: blur(2px);
+}
+
+.header {
+    position: fixed;
+    width: 100vw;
+    background: rgb(127 127 127 / 25%);
+    backdrop-filter: blur(10px);
+    color: white;
+    height: 10vh;
+    top: 0;
+    left: 0;
+    box-shadow: 0px 0px 5px 0 white;
+}
+
+.mainTopicTitle {
+    font-size: 8vh;
+    font-family: monospace;
+    float: right;
+    display: inline-block;
+    font-weight: bold;
+    margin: .5vh 15px;
+    text-shadow: 1px 1px 3px BLACK;
+    width: calc(90% - 60px);
+    height: 90%;
+    text-align: right;
+    text-wrap: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.homeButt {
+    border-radius: 100%;
+    font-family: monospace;
+    margin: .5vh;
+    font-size: 2em;
+    height: calc(90% - 2vh);
+    background: rgb(255 255 255 / 75%);
+    padding: 1vh;
+    box-shadow: inset 0 0 5px 0 black;
+}
+
+.display {
+    background: rgb(255 255 255 / 85%);
+    width: 90%;
+    height: 80%;
+    display: flex;
+    margin: 2.5% auto 0;
+    border-radius: 30px;
+    box-shadow: inset 0 0 10px 0 black;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.displayMenu {
+    height: 10%;
+    width: 90%;
+    margin: 0 auto;
+    background: rgb(255 255 255 / 85%);
+    border-bottom-right-radius: 30px;
+    border-bottom-left-radius: 30px;
+}
+
+.mainContain {
+    position: fixed;
+    width: calc(90vw - 30px);
+    left: 5vw;
+    bottom: 5vh;
+    height: calc(80vh - 30px);
+    background: rgb(127 127 127 / 25%);
+    backdrop-filter: blur(10px);
+    border-radius: 30px;
+    padding: 15px;
+    box-shadow: 0 0 10px 0 white;
+}
+
+.sourceList {
+    width: 100%;
+    list-style: none;
+    padding: 0;
+    margin: 20px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.sourceList li {
+}
+
+.DMButt {
+    width: calc(33.3% - 2.5px);
+    border: none;
+    font-family: monospace;
+    background: none;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    font-size: 3.5vh;
+}
+
+.topicDesc {
+    width: calc(100% - 20px);
+    color: black;
+    font-family: monospace;
+    font-weight: bold;
+    text-shadow: 1px 1px 1px white;
+    font-size: 1.5em;
+    text-align: center;
+    margin: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: calc(95% - 50px);
+    box-shadow: inset 0 0 10px 0 black;
+    border-radius: 30px;
+    padding: 10px;
+}
+
+.topicDesc span {
+    font-size: .75em;
+    font-weight: normal;
+    display: block;
+    text-align: left;
+    margin: 7.5px 20px;
+    border-bottom: 1px black solid;
+}
+
+.topicID {
+    float: right;
+    font-family: monospace;
+    font-size: 1.5em;
+    margin: 0 5px 10px;
+}
+
+.noSourceMsg {
+}
+
+.sourcePreview {
+    margin: 5px 7.5px;
+    float: left;
+    height: calc(100% - 10px);
+    display: inline-block;
+}
+
+.sourceDiv {
+    width: 95%;
+    padding: 0;
+    box-shadow: inset 0 0 5px 0 black;
+    border-radius: 10px;
+    height: 15%;
+    margin: 5px auto;
+}
+
+.sourceDesc {
+    float: left;
+    width: calc(80% - 15px);
+    display: inline-block;
+    font-size: 3vh;
+    text-decoration: none;
+    font-family: monospace;
+    text-align: left;
+    color: black;
+    border-left: 1px solid;
+    border-right: 1px solid;
+    padding: 3px;
+    box-shadow: inset 0 0 3px 0 black;
+    text-overflow: ellipsis;
+    text-wrap: pretty;
+    overflow: hidden;
+    height: calc(100% - 6px);
+}
+
+.addSourceButt {
+    width: 100%;
+    padding: 0;
+    box-shadow: inset 0 0 5px 0 black;
+    border-radius: 10px;
+    height: 15%;
+    margin: 5px 0;
+    font-family: monospace;
+    font-size: 4vh;
+}
+
+.openDown {
+    height: calc(100% - 2vh);
+    float: right;
+    padding: 1vh 3.5vw;
+    display: flex;
+}
+
+.promptBGContainer {
+    width: 100vw;
+    position: fixed;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    background: rgb(0 0 0 / 40%);
+    backdrop-filter: blur(5px);
+    transition: opacity 1s;
+    filter: opacity(0);
+}
+
+.promptBGContainer {
+    width: 100vw;
+    position: fixed;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    background: rgb(0 0 0 / 40%);
+    backdrop-filter: blur(5px);
+    transition: opacity 1s;
+    filter: opacity(0);
+}
+
+.promptContainer {
+    width: 80vw;
+    height: 80vh;
+    background: rgb(212 212 212 / 95%);
+    border-radius: 20px;
+    margin: 10vh auto;
+    color: #444444;
+    text-shadow: 1px 1px 2px black;
+    box-shadow: inset 0 0 10px 0px black;
+}
+
+.promptTitle {
+    font-size: 4em;
+    text-align: center;
+    font-family: monospace;
+    width: fit-content;
+    margin: 35px auto;
+    padding-top: 20px;
+}
+
+.topicTitle {
+    display: block;
+    width: 90%;
+    margin: 15px auto;
+    font-family: monospace;
+    font-size: 1.5em;
+    background: rgb(255 255 255 / 75%);
+    border: none;
+    border-bottom: 2px solid black;
+    border-radius: 5px;
+}
+
+.sourceDescPrompt
+{
+    width: 90%;
+    height: 3.3em;
+    display: block;
+    font-size: 1.25em;
+    margin: 25px auto;
+    resize: none;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    max-height: 30vh;
+}
+
+.topicDescPrompt {
+    width: 90%;
+    height: 3.3em;
+    display: block;
+    font-size: 1.25em;
+    margin: 15px auto;
+    resize: none;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    max-height: 45vh;
+}
+
+.topicSubButt {
+    border-radius: 5px;
+    font-family: monospace;
+    padding: 10px;
+    font-size: 1.75em;
+    display: block;
+    margin: 10px auto;
+}
+
+.sourceFile {
+    width: calc(50% - 22px);
+    padding: 15px 10px;
+    display: inline;
+    font-size: 1.5em;
+    font-family: monospace;
+    text-overflow: ellipsis;
+    border-left: 2px solid grey;
+}
+
+.topicLink {
+    display: inline-block;
+    width: calc(50% - 20px);
+    margin: 15px 10px;
+    font-family: monospace;
+    font-size: 1.5em;
+    text-align: center;
+    background: rgb(255 255 255 / 75%);
+    border: none;
+    border-bottom: 2px solid black;
+    border-radius: 5px;
+}
+
+
+.titleDescDiv {
+    float: left;
+    width: 50%;
+}
+
+.linkFileDiv {
+    width: 100%;
+}
+
+.pPrompt {
+    background: rgb(212 180 180 / 95%);
+    box-shadow: inset 0 0 10px 0px rgb(120 0 0);
+}
+
+.sPrompt {
+    background: rgb(180 180 212 / 95%);
+    box-shadow: inset 0 0 10px 0px rgb(0 0 120);
+}
+
+.targetFrame {
+    display: none;
+}
+
+.promptContainer hr
+{
+    width: 75%;
+    margin: 0 auto;
+    border-color: grey;
+}

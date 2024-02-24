@@ -1,5 +1,7 @@
 <?php
 	//echo "♠";
+	$topics = array_diff(scandir("topics"), array('.', '..'));
+	var_dump($topics);
 ?>
 <!DOCTYPE html>
 <html>

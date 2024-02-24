@@ -102,7 +102,7 @@ function canSubmit()
 	const sourceDesc = document.getElementById('sourceDesc');
 	if ((topicLink === undefined || topicLink === null) || (sourceFile === undefined || sourceFile === null))
 		return false;
-	return ((topicLink.value.trim() != "" || sourceFile.value != "") && topicTitle.value.trim() != "" && topicDesc.value.trim() != "" || sourceDesc.value.trim() != "");
+	return ((topicLink.value.trim() != "" || sourceFile.value != "") && topicTitle.value.trim() != "" && topicDesc.value.trim() != "" && sourceDesc.value.trim() != "");
 }
 
 function closePrompt()
