@@ -1,5 +1,5 @@
 <?php
-	$link = trim($_POST["link"]);
+	$link = urldecode(trim($_POST["link"]));
 	$sourceDesc = trim($_POST["sDesc"]);
 	$isPrimary = ($_POST["input1"] == "true");
 	$topicID = $_POST["input2"];
@@ -8,7 +8,7 @@
 	if ($link != "")
 	{
 		$links = fopen("$sourceFolder/.htLinks","a");
-		fwrite($links,$link . "#;#" . $sourceDesc);
+		fwrite($links,$link . "#;#" . $sourceDesc . "\n");
 		fclose($links);
 	}
 	else

@@ -1,10 +1,10 @@
 <?php
 	$title = $_POST["title"];
 	$desc = $_POST["desc"];
-	$link = trim($_POST["link"]);
+	$link = urldecode(trim($_POST["link"]));
 	$sourceDesc = trim($_POST["sDesc"]);
 	$isPrimary = ($_POST["POSTInput1"] == "true");
-	$topicListArr = array_diff(scandir("../../topics"), array('.', '..'));
+	$topicListArr = array_values(array_diff(scandir("../../topics"), array('.', '..')));
 	if (count($topicListArr) >= 9000)
 		trigger_error("Too many topics!",E_USER_ERROR);
 	$newTopicID = rand(1000,9999);
@@ -23,6 +23,7 @@
 	exec("touch $topicPath/P/.htLinks");
 	exec("mkdir $topicPath/S");
 	exec("touch $topicPath/S/.htLinks");
+	exec("touch $topicPath/.htRelated");
 	if ($link != "")
 	{
 		$links = fopen("$sourcePath/.htLinks","w");

@@ -4,7 +4,7 @@ var check = false;
 return check;}
 
 const isMobile = window.mobilecheck();
-const mobileStyles = ["homeButt","header","mainTopicTitle","display","displayMenu","mainContain","sourceList","topicID","topicDesc"];
+const mobileStyles = ["homeButt","header","mainTopicTitle","display","displayMenu","mainContain","sourceList","topicID","topicDesc","promptContainer"];
 var displayOn = "";
 var promptOpen = false;
 const SIDs = 
@@ -22,6 +22,7 @@ const SIDs =
 		"color":"green"//potentially more
 	}
 }
+
 function switchDisplay(type,butt)
 {
 	const display = document.getElementById("display");
@@ -48,15 +49,15 @@ function switchDisplay(type,butt)
 				tempDiv.appendChild(tempPreview);
 				const tempDesc = document.createElement("a");
 				tempDesc.innerHTML = sources[0][i][1];
-				tempDesc.setAttribute("onclick","openSource('f',"+i+")")
+				tempDesc.setAttribute("onclick","openSource(false,"+i+",'"+type+"')")
 				tempDesc.setAttribute("href","#");
 				tempDesc.setAttribute("class","sourceDesc")
 				tempDiv.appendChild(tempDesc);
 				const tempOpen = document.createElement("input");
-				tempOpen.setAttribute("src","../../res/misc/openLink.png");
+				tempOpen.setAttribute("src","../../res/misc/download.png");
 				tempOpen.setAttribute("type","image");
 				tempOpen.setAttribute("class","openDown");
-				tempOpen.setAttribute("onclick","downloadFile("+i+")");
+				tempOpen.setAttribute("onclick","downloadFile("+i+",'"+type+"')");
 				tempDiv.appendChild(tempOpen);
 				displayList.appendChild(document.createElement('li').appendChild(tempDiv));
 			}
@@ -66,17 +67,18 @@ function switchDisplay(type,butt)
 				{
 					const sourcePair = sources[1][i].split("#;#");
 					let baseLocation = sourcePair[0].split("/").splice(0,3).join("/");
-					if (!baseLocation.includes("http://") || !baseLocation.includes("https://"))
+					if (!baseLocation.includes("http://") && !baseLocation.includes("https://"))
 						baseLocation = "https://"+baseLocation;
 					const tempDiv = document.createElement("div");
 					tempDiv.setAttribute("class","sourceDiv");
 					const tempPreview = document.createElement("img");
+					tempPreview.setAttribute("alt","Page Icon");
 					tempPreview.setAttribute("class","sourcePreview");
 					tempPreview.setAttribute("src",baseLocation+"/favicon.ico");
 					tempDiv.appendChild(tempPreview);
 					const tempDesc = document.createElement("a");
 					tempDesc.innerHTML = sourcePair[1];
-					tempDesc.setAttribute("onclick","openSource('l',"+i+")")
+					tempDesc.setAttribute("onclick","openSource(true,"+i+",'"+type+"')")
 					tempDesc.setAttribute("href","#");
 					tempDesc.setAttribute("class","sourceDesc")
 					tempDiv.appendChild(tempDesc);
@@ -84,7 +86,7 @@ function switchDisplay(type,butt)
 					tempOpen.setAttribute("src","../../res/misc/openLink.png");
 					tempOpen.setAttribute("type","image");
 					tempOpen.setAttribute("class","openDown");
-					tempOpen.setAttribute("onclick","openLink("+i+")");
+					tempOpen.setAttribute("onclick","openLink("+i+",'"+type+"')");
 					tempDiv.appendChild(tempOpen);
 					displayList.appendChild(document.createElement('li').appendChild(tempDiv));
 				}
@@ -126,16 +128,84 @@ function switchDisplay(type,butt)
 	}
 }
 
-function openLink(index)
-{}
+function openLink(index,type)
+{
+	
+	let baseLocation = SIDs[type]["sources"][1][index].split("#;#")[0];
+	if (!baseLocation.includes("http://") && !baseLocation.includes("https://"))
+		baseLocation = "https://"+baseLocation;
+	window.open(baseLocation,"_blank");
+}
 
-function downloadFile(index)
-{}
+function downloadFile(index,type)
+{
+	window.open(type+"/"+SIDs[type]["sources"][0][index][0],"_blank");
+}
 
 function addRelated()
 {
-	
+	const promptBG = document.getElementById("promptBGContainer");
+	const promptContainer = document.getElementById("promptContainer");
+	const POSTForm = document.getElementById("mainForm");
+	promptContainer.innerHTML = "";
+	promptBG.style["z-index"] = (promptOpen ? "-100":"100");
+	promptBG.style["filter"] = (promptOpen ? "opacity(0)":"opacity(1)");
+	const searchBar = document.createElement("input");
+	searchBar.setAttribute("type","search");
+	searchBar.setAttribute("onkeydown","if(event.keyCode == 13) {searchRelatedTopics()}");
+	searchBar.setAttribute("id","search");
+	searchBar.setAttribute("class","RTSearchBar");
+	searchBar.setAttribute("name","search");
+	searchBar.setAttribute("placeholder","Search Topics");
+	searchBar.setAttribute("form",POSTForm.name);
+	promptContainer.appendChild(searchBar);
+	const searchDiv = document.createElement("div");
+	searchDiv.setAttribute("class","searchDiv");
+	searchDiv.setAttribute("id","searchDiv");
+	searchDiv.setAttribute("style","");
+	promptContainer.appendChild(searchDiv);
+	promptOpen = true;
 }
+
+function searchRelatedTopics()
+{
+	const search = document.getElementById("search");
+	const value = encodeURIComponent(search.value.trim());
+	if (value != "")
+	{
+		const POSTForm = document.getElementById("mainForm");
+		POSTForm.setAttribute("action","../../res/php/search.php");
+		POSTForm.setAttribute("target","targetFrame");
+		POSTForm.submit();
+	}
+}
+
+function showResults(results)
+{
+	const resultKeys = Object.keys(results);
+	const searchDiv = document.getElementById("searchDiv");
+	searchDiv.innerHTML = "";
+	for (const resultKey of resultKeys)
+	{
+		if (resultKey == attributes[0])
+			continue;
+		const tmpDiv = document.createElement("div");
+		tmpDiv.setAttribute("class","resultDiv");
+		const tmpA = document.createElement("a");
+		tmpA.setAttribute("href","#");
+		tmpA.setAttribute("onclick","relateTopic("+resultKey+")");
+		tmpA.innerHTML = results[resultKey];
+		tmpDiv.appendChild(tmpA);
+		const tmpSpan = document.createElement("span");
+		tmpSpan.innerHTML = resultKey;
+		tmpDiv.appendChild(tmpSpan);
+		searchDiv.appendChild(tmpDiv);
+	}
+	document.getElementById("searchDiv").style["opacity"] = "1";
+}
+
+function relateTopic(ID)
+{}
 
 function addSource(type)
 {
@@ -191,24 +261,35 @@ function addSource(type)
 	const subTopic = document.createElement("input");
 	subTopic.setAttribute("type","button");
 	subTopic.setAttribute("value","Submit Source");
-	subTopic.setAttribute("onclick","if (!canSubmit()) {window.alert('Title and Description are REQUIRED.\\nAlso you must use a link or file to add a source!')}else{document.getElementById('mainForm').submit();closePrompt()}");
+	subTopic.setAttribute("onclick","submitSource()");
 	subTopic.setAttribute("class","topicSubButt"+((isMobile) ? "Mobile":""));
 	promptContainer.appendChild(subTopic);
 	promptOpen = true;
 }
 
-function canSubmit()
+function submitSource()
 {
+	let canSubmit = true;
 	const topicLink = document.getElementById('topicLink');
 	const sourceFile = document.getElementById('sourceFile');
 	const sourceDescPrompt = document.getElementById('sourceDescPrompt');
 	if ((topicLink === undefined || topicLink === null) || (sourceFile === undefined || sourceFile === null))
-		return false;
-	return ((topicLink.value.trim() != "" || sourceFile.value != "") && sourceDescPrompt.value.trim() != "");
+		canSubmit = false;
+	canSubmit = ((topicLink.value.trim() != "" || sourceFile.value != "") && sourceDescPrompt.value.trim() != "");
+	if (!canSubmit)
+	{
+		window.alert('Title and Description are REQUIRED.\\nAlso you must use a link or file to add a source!');
+		return;
+	}
+	topicLink.value = encodeURIComponent(topicLink.value);
+	document.getElementById('mainForm').submit();
+	closePrompt();
 }
 
 function closePrompt()
 {
+	if (!promptOpen)
+		return;
 	const promptBG = document.getElementById("promptBGContainer");
 	const promptContainer = document.getElementById("promptContainer");
 	promptContainer.innerHTML = "";
@@ -218,8 +299,73 @@ function closePrompt()
 	promptOpen = false;
 }
 
-function openSource(type,index)
-{}
+function openSource(linkoFile,index,type)
+{
+	const promptBG = document.getElementById("promptBGContainer");
+	const promptContainer = document.getElementById("promptContainer");
+	promptBG.style["z-index"] = (promptOpen ? "-100":"100");
+	promptBG.style["filter"] = (promptOpen ? "opacity(0)":"opacity(1)");
+	const sourceArr = SIDs[type]["sources"][((linkoFile) ? 1:0)];
+	const previewDiv = document.createElement("div");
+	previewDiv.setAttribute("class","previewDiv");
+	let preview = null;
+	let desc = "";
+	let urlPath = "";
+	if (linkoFile)
+	{
+		urlPath = sourceArr[index].split("#;#")[0];
+		desc = sourceArr[index].split("#;#")[1];
+		preview = document.createElement("iframe");
+		preview.setAttribute("class","previewIframe");
+		preview.setAttribute("allowfullscreen","false");
+		preview.setAttribute("scrolling","no");
+		preview.setAttribute("allowpaymentrequest","false");
+		preview.setAttribute("loading","lazy");
+		if (!urlPath.includes("http://") && !urlPath.includes("https://"))
+			urlPath = "https://"+urlPath;
+		preview.setAttribute("src",urlPath);
+	}
+	else
+	{
+		desc = sourceArr[index][1];
+		urlPath = type+"/"+sourceArr[index][0];
+		if (sourceArr[index][0].includes(".png"))//image
+		{
+			preview = document.createElement("img");
+			preview.setAttribute("class","previewImg");
+			preview.setAttribute("src",urlPath);
+		}
+	}
+	preview.setAttribute("id","preview");
+	previewDiv.appendChild(preview);
+	promptContainer.appendChild(previewDiv);
+	const descDiv = document.createElement("div");
+	descDiv.setAttribute("class","descDiv");
+	descDiv.setAttribute("id","descDiv");
+	const descP = document.createElement("p");
+	descP.setAttribute("class","descP");
+	descP.setAttribute("id","descP");
+	descP.setAttribute("style","");
+	descP.innerHTML = desc;
+	descDiv.appendChild(descP);
+	promptContainer.appendChild(descDiv);
+	centerDescP(descDiv,descP);
+	const sourceButtMenu = document.createElement("div");
+	sourceButtMenu.setAttribute("class","sourceButtMenu");
+	const openButt = document.createElement("input");
+	openButt.setAttribute("src","../../res/misc/"+((linkoFile) ? "openLink.png":"download.png"));
+	openButt.setAttribute("type","image");
+	openButt.setAttribute("class","openDownSource");
+	openButt.setAttribute("onclick",((linkoFile) ? "openLink":"downloadFile")+"("+index+",'"+type+"')");
+	sourceButtMenu.appendChild(openButt);//add more buttons for sharing, relating to other topics and more
+	promptContainer.appendChild(sourceButtMenu);
+	promptOpen = true;
+}
+
+function centerDescP(div,p)
+{
+	p.style["height"] = (div.clientHeight - 30)+"px";
+}
 
 function load()
 {

@@ -86,23 +86,32 @@ function sourcePrompt(isPrimary)
 	const subTopic = document.createElement("input");
 	subTopic.setAttribute("type","button");
 	subTopic.setAttribute("value","Submit Topic");
-	subTopic.setAttribute("onclick","if (!canSubmit()) {window.alert('Title and Description are REQUIRED.\\nAlso you must use a link or file to create a topic!')}else{document.getElementById('POSTForm').submit();closePrompt()}");
+	subTopic.setAttribute("onclick","submitSource()");
 	subTopic.setAttribute("class","topicSubButt"+((isMobile) ? "Mobile":""));
 	promptContainer.appendChild(subTopic);
 	//document.getElementById("POSTInput1").value = "";//title
 	promptOpen = true;
 }
 
-function canSubmit()
+function submitSource()
 {
+	let canSubmit = true;
 	const topicLink = document.getElementById('topicLink');
 	const sourceFile = document.getElementById('sourceFile');
 	const topicTitle = document.getElementById('topicTitle');
 	const topicDesc = document.getElementById('topicDesc');
 	const sourceDesc = document.getElementById('sourceDesc');
 	if ((topicLink === undefined || topicLink === null) || (sourceFile === undefined || sourceFile === null))
-		return false;
-	return ((topicLink.value.trim() != "" || sourceFile.value != "") && topicTitle.value.trim() != "" && topicDesc.value.trim() != "" && sourceDesc.value.trim() != "");
+		canSubmit = false;
+	canSubmit = ((topicLink.value.trim() != "" || sourceFile.value != "") && topicTitle.value.trim() != "" && topicDesc.value.trim() != "" && sourceDesc.value.trim() != "");
+	if (!canSubmit)
+	{
+		window.alert('Title and Description are REQUIRED.\\nAlso you must use a link or file to create a topic!');
+		return;
+	}
+	topicLink.value = encodeURIComponent(topicLink.value);
+	document.getElementById('POSTForm').submit();
+	closePrompt();
 }
 
 function closePrompt()
@@ -118,7 +127,14 @@ function closePrompt()
 
 function searchTopics()
 {
-	
+	const topicSearch = document.getElementById("topicSearch");
+	const getForm = document.getElementById("GETForm");
+	const value = encodeURIComponent(topicSearch.value.trim());
+	if (value != "")
+	{
+		getForm.setAttribute("action","search.php");
+		getForm.submit();
+	}
 }
 
 function toggleTP()
@@ -131,9 +147,31 @@ function toggleTP()
 	TPHandle.setAttribute("data-toggled",(isClosed ? "true":"false"));
 }
 
+function openTopic(ID)
+{
+	window.open("topics/"+ID,"_self");
+}
+
 function load()
 {
 	for (const style of mobileStyles)
 		document.getElementById(style).setAttribute("class",style+((isMobile) ? "Mobile":""));
-	console.log("I'm better than you");
+	const TPMain = document.getElementById("TPMain");
+	topicValues = Object.values(topics);
+	topicKeys = Object.keys(topics);
+	for (let i=0;i<topicValues.length;i++)
+	{
+		const tmpDiv = document.createElement("div");
+		tmpDiv.setAttribute("class","topicListDiv");
+		const tmpA = document.createElement("a");
+		tmpA.setAttribute("href","#");
+		tmpA.setAttribute("title",topicValues[i][1]);
+		tmpA.setAttribute("onclick","openTopic("+topicKeys[i]+")");
+		tmpA.innerHTML = topicValues[i][0];
+		const tmpSpan = document.createElement("span");
+		tmpSpan.innerHTML = topicKeys[i];
+		tmpA.appendChild(tmpSpan);
+		tmpDiv.appendChild(tmpA);
+		TPMain.appendChild(tmpDiv);
+	}
 }
