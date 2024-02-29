@@ -31,6 +31,7 @@
 <html>
 	<head>
 		<link rel="stylesheet" type="text/css" href="res/misc/search.css">
+		<script src="res/js/const.js"></script>
 		<script src="res/js/search.js"></script>
 	</head>
 	<body>

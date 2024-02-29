@@ -1,11 +1,6 @@
-window.mobilecheck = function() {
-var check = false;
-(function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)| iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4))) check = true;})(navigator.userAgent||navigator.vendor||window.opera);
-return check;}
-
-const isMobile = window.mobilecheck();
-const mobileStyles = ["homeButt","header","mainTopicTitle","display","displayMenu","mainContain","sourceList","topicID","topicDesc","promptContainer"];
+const mobileStyles = ["header","mainTopicTitle","display","displayMenu","mainContain","sourceList","topicID","topicDesc","promptContainer"];
 var displayOn = "";
+var refreshChatInterval = null;
 var promptOpen = false;
 const SIDs = 
 {
@@ -18,7 +13,7 @@ const SIDs =
 		"color":"blue"//potentially more
 	},
 	"R":{
-		"sources":relatedTopics,
+		"sources":rTopics,
 		"color":"green"//potentially more
 	}
 }
@@ -37,28 +32,25 @@ function switchDisplay(type,butt)
 		displayOn = type;
 		display.style["box-shadow"] = "inset 0 0 10px 0 "+SIDs[type]["color"];
 		const sources = SIDs[type]["sources"];
-		if (sources !== null)
+		if (type != "R")
 		{
 			for (let i=0;i<sources[0].length;i++)
 			{
-				const tempDiv = document.createElement("div");
-				tempDiv.setAttribute("class","sourceDiv"); 
-				const tempPreview = document.createElement("img");
-				tempPreview.setAttribute("class","sourcePreview");
-				tempPreview.setAttribute("src","../../res/misc/documents.png");
-				tempDiv.appendChild(tempPreview);
-				const tempDesc = document.createElement("a");
+				const tempDiv = createElement("div",["class","sourceDiv"],["data-selected","false"]); 
+				tempDiv.appendChild(createElement("img",["class","sourcePreview"],["src","../../res/misc/documents.png"]));
+				const tempDesc = createElement("a",["href","#"],["class","sourceDesc"]);
 				tempDesc.innerHTML = sources[0][i][1];
-				tempDesc.setAttribute("onclick","openSource(false,"+i+",'"+type+"')")
-				tempDesc.setAttribute("href","#");
-				tempDesc.setAttribute("class","sourceDesc")
+				tempDesc.onclick = function()
+				{
+					openSource(false,i,type);
+					const sDivs = document.getElementsByClassName("sourceDiv");
+					Array.from(sDivs).forEach((div) => {
+						div.setAttribute("data-selected", "false");
+					});
+					tempDiv.setAttribute("data-selected","true");
+				}
 				tempDiv.appendChild(tempDesc);
-				const tempOpen = document.createElement("input");
-				tempOpen.setAttribute("src","../../res/misc/download.png");
-				tempOpen.setAttribute("type","image");
-				tempOpen.setAttribute("class","openDown");
-				tempOpen.setAttribute("onclick","downloadFile("+i+",'"+type+"')");
-				tempDiv.appendChild(tempOpen);
+				tempDiv.appendChild(createElement("input",["src","../../res/misc/download.png"],["type","image"],["class","openDown"],["onclick","downloadFile("+i+",'"+type+"')"]));
 				displayList.appendChild(document.createElement('li').appendChild(tempDiv));
 			}
 			if (sources[1] !== null)
@@ -69,63 +61,72 @@ function switchDisplay(type,butt)
 					let baseLocation = sourcePair[0].split("/").splice(0,3).join("/");
 					if (!baseLocation.includes("http://") && !baseLocation.includes("https://"))
 						baseLocation = "https://"+baseLocation;
-					const tempDiv = document.createElement("div");
-					tempDiv.setAttribute("class","sourceDiv");
-					const tempPreview = document.createElement("img");
-					tempPreview.setAttribute("alt","Page Icon");
-					tempPreview.setAttribute("class","sourcePreview");
-					tempPreview.setAttribute("src",baseLocation+"/favicon.ico");
-					tempDiv.appendChild(tempPreview);
-					const tempDesc = document.createElement("a");
+					const tempDiv = createElement("div",["class","sourceDiv"],["data-selected","false"]); 
+					tempDiv.appendChild(createElement("img",["alt","Page Icon"],["class","sourcePreview"],["src",baseLocation+"/favicon.ico"]));
+					const tempDesc = createElement("a",["href","#"],["class","sourceDesc"]);
 					tempDesc.innerHTML = sourcePair[1];
-					tempDesc.setAttribute("onclick","openSource(true,"+i+",'"+type+"')")
-					tempDesc.setAttribute("href","#");
-					tempDesc.setAttribute("class","sourceDesc")
+					tempDesc.onclick = function()
+					{
+						openSource(true,i,type);
+						const sDivs = document.getElementsByClassName("sourceDiv");
+						Array.from(sDivs).forEach((div) => {
+							div.setAttribute("data-selected", "false");
+						});
+						tempDiv.setAttribute("data-selected","true");
+					}
 					tempDiv.appendChild(tempDesc);
-					const tempOpen = document.createElement("input");
-					tempOpen.setAttribute("src","../../res/misc/openLink.png");
-					tempOpen.setAttribute("type","image");
-					tempOpen.setAttribute("class","openDown");
-					tempOpen.setAttribute("onclick","openLink("+i+",'"+type+"')");
-					tempDiv.appendChild(tempOpen);
-					displayList.appendChild(document.createElement('li').appendChild(tempDiv));
+					tempDiv.appendChild(createElement("input",["src","../../res/misc/openLink.png"],["type","image"],["class","openDown"],["onclick","openLink("+i+",'"+type+"')"]));
+					displayList.appendChild(createElement('li').appendChild(tempDiv));
 				}
 			}
-		}
-		if (type != "R")
-		{
-			const addSourceButt = document.createElement("input");
-			addSourceButt.setAttribute("class","addSourceButt");
-			addSourceButt.setAttribute("type","button");
-			addSourceButt.setAttribute("onclick","addSource('"+type+"')");
-			addSourceButt.setAttribute("value","Add Source");
-			displayList.appendChild(document.createElement('li').appendChild(addSourceButt));
+			displayList.appendChild(createElement('li').appendChild(createElement("input",["class","addSourceButt"],["type","button"],["onclick","addSource('"+type+"')"],["value","Add Source"])));
 		}
 		else
 		{
-			const addRelatedButt = document.createElement("input");
-			addRelatedButt.setAttribute("class","addSourceButt");
-			addRelatedButt.setAttribute("type","button");
-			addRelatedButt.setAttribute("onclick","addRelated()");
-			addRelatedButt.setAttribute("value","Add Related Topic");
-			displayList.appendChild(document.createElement('li').appendChild(addRelatedButt));
+			for (const rTopic of rTopics)
+			{
+				const tmpDiv = createElement("div",["class","relatedDiv"]);
+				const tmpA = createElement("a",["href","#"],["onclick","openTopic("+rTopic[0]+")"]);
+				tmpA.innerHTML = rTopic[1];
+				tmpDiv.appendChild(tmpA);
+				const tmpSpan = createElement("span");
+				tmpSpan.innerHTML = rTopic[0];
+				tmpDiv.appendChild(tmpSpan);
+				displayList.appendChild(createElement('li').appendChild(tmpDiv));
+			}
+			displayList.appendChild(createElement('li').appendChild(createElement("input",["class","addSourceButt"],["type","button"],["onclick","addRelated()"],["value","Add Related Topic"])));
 		}
 	}
 	else
 	{
 		displayOn = "";
 		display.style["box-shadow"] = "inset 0 0 10px 0 black";
-		const topicID = document.createElement("span");
+		const homeTopicDiv = createElement("div",["class","homeTopicDiv"+((isMobile) ? "Mobile":"")]); 
+		const backHome = createElement("input",
+			["class","homeButt"+((isMobile) ? "Mobile":"")],
+			["type","image"],
+			["id","homeButt"],
+			["title","Return Home"],
+			["src","../../res/misc/home.png"]
+		);
+		backHome.onclick=function ()
+		{
+			window.open(location.origin+'/RedLines','_self');
+		};
+		homeTopicDiv.appendChild(backHome);
+		const topicID = createElement("span",["id","topicID"],["class","topicID"+((isMobile) ? "Mobile":"")]);
 		topicID.innerHTML = "ID: "+attributes[0];
-		topicID.setAttribute("id","topicID");
-		topicID.setAttribute("class","topicID"+((isMobile) ? "Mobile":""));
-		displayList.appendChild(document.createElement("li").appendChild(topicID));
-		const topicDesc = document.createElement("p");
+		homeTopicDiv.appendChild(topicID);
+		displayList.appendChild(createElement("li").appendChild(homeTopicDiv));
+		const topicDesc = createElement("p",["id","topicDesc"],["class","topicDesc"+((isMobile) ? "Mobile":"")]);
 		topicDesc.innerHTML = "<span>Description:</span>"+attributes[2];
-		topicDesc.setAttribute("id","topicDesc");
-		topicDesc.setAttribute("class","topicDesc"+((isMobile) ? "Mobile":""));
 		displayList.appendChild(document.createElement("li").appendChild(topicDesc));
 	}
+}
+
+function openTopic(topicID)
+{
+	window.open("../../topics/"+topicID,"_self");
 }
 
 function openLink(index,type)
@@ -150,34 +151,19 @@ function addRelated()
 	promptContainer.innerHTML = "";
 	promptBG.style["z-index"] = (promptOpen ? "-100":"100");
 	promptBG.style["filter"] = (promptOpen ? "opacity(0)":"opacity(1)");
-	const searchBar = document.createElement("input");
-	searchBar.setAttribute("type","search");
-	searchBar.setAttribute("onkeydown","if(event.keyCode == 13) {searchRelatedTopics()}");
-	searchBar.setAttribute("id","search");
-	searchBar.setAttribute("class","RTSearchBar");
-	searchBar.setAttribute("name","search");
-	searchBar.setAttribute("placeholder","Search Topics");
-	searchBar.setAttribute("form",POSTForm.name);
-	promptContainer.appendChild(searchBar);
-	const searchDiv = document.createElement("div");
-	searchDiv.setAttribute("class","searchDiv");
-	searchDiv.setAttribute("id","searchDiv");
-	searchDiv.setAttribute("style","");
-	promptContainer.appendChild(searchDiv);
+	promptContainer.appendChild(createElement("input",["type", "search"],["onkeydown", "if(event.keyCode == 13) {searchRelatedTopics()}"],["id", "search"],["class", "RTSearchBar"],["name", "search"],["placeholder", "Search Topics"],["form", POSTForm.name]));
+	promptContainer.appendChild(createElement("div", ["class", "searchDiv"], ["id", "searchDiv"], ["style", ""]));
 	promptOpen = true;
 }
 
-function searchRelatedTopics()
-{
-	const search = document.getElementById("search");
-	const value = encodeURIComponent(search.value.trim());
-	if (value != "")
-	{
-		const POSTForm = document.getElementById("mainForm");
-		POSTForm.setAttribute("action","../../res/php/search.php");
-		POSTForm.setAttribute("target","targetFrame");
-		POSTForm.submit();
-	}
+function searchRelatedTopics() {
+    const searchValue = encodeURIComponent(document.getElementById("search").value.trim());
+    if (searchValue !== "") {
+        const POSTForm = document.getElementById("mainForm");
+        POSTForm.action = "../../res/php/search.php";
+        POSTForm.target = "targetFrame";
+        POSTForm.submit();
+    }
 }
 
 function showResults(results)
@@ -189,11 +175,15 @@ function showResults(results)
 	{
 		if (resultKey == attributes[0])
 			continue;
-		const tmpDiv = document.createElement("div");
-		tmpDiv.setAttribute("class","resultDiv");
-		const tmpA = document.createElement("a");
-		tmpA.setAttribute("href","#");
-		tmpA.setAttribute("onclick","relateTopic("+resultKey+")");
+		const tmpDiv = createElement("div",["class","resultDiv"]);
+		const tmpA = document.createElement("a",["href","#"],[]);
+		tmpA.setAttribute();
+		tmpA.onclick = function() {
+            if (!relateTopic(resultKey)) {
+                window.alert('Topic already related!');
+            }
+            return false; // Prevent default action of anchor tag
+        };
 		tmpA.innerHTML = results[resultKey];
 		tmpDiv.appendChild(tmpA);
 		const tmpSpan = document.createElement("span");
@@ -201,11 +191,23 @@ function showResults(results)
 		tmpDiv.appendChild(tmpSpan);
 		searchDiv.appendChild(tmpDiv);
 	}
-	document.getElementById("searchDiv").style["opacity"] = "1";
+	searchDiv.style["opacity"] = "1";
 }
 
 function relateTopic(ID)
-{}
+{
+	for (const relatedTopic of rTopics)
+		if (ID == relatedTopic)
+			return false;
+	const mainForm = document.getElementById("mainForm");
+	const input1 = document.getElementById("input1");
+	const input2 = document.getElementById("input2");
+	mainForm.action = "../../res/php/relateTopic.php";
+	input1.value = attributes[0];
+	input2.value = ID;
+	mainForm.submit();
+	return true;
+}
 
 function addSource(type)
 {
@@ -218,52 +220,31 @@ function addSource(type)
 	POSTForm.setAttribute("action","../../res/php/addSource.php");
 	document.getElementById("input1").value = isPrimary;
 	document.getElementById("input2").value = attributes[0];
-	const title = document.createElement("h2");
-	title.setAttribute("class","promptTitle"+((isMobile) ? "Mobile":""));
+	const title = createElement("h2",["class","promptTitle"+((isMobile) ? "Mobile":"")]);
 	title.innerHTML = "Add a "+(isPrimary ? "Primary":"Secondary")+" Source";
 	promptContainer.appendChild(title);
 	promptContainer.setAttribute("class",("promptContainer"+((isMobile) ? "Mobile":""))+" "+(isPrimary ? "pPrompt":"sPrompt"));
-	const linkFileDiv = document.createElement("div");
-	linkFileDiv.setAttribute("class","linkFileDiv"+((isMobile) ? "Mobile":""));
-	const topicLink = document.createElement("input");
-	topicLink.setAttribute("type","url");
-	topicLink.setAttribute("name","link");
-	topicLink.setAttribute("id","topicLink");
-	topicLink.setAttribute("placeholder","Source Link");
-	topicLink.setAttribute("value","");
-	topicLink.setAttribute("form",POSTForm.name);
-	topicLink.setAttribute("class","topicLink"+((isMobile) ? "Mobile":""));
-	linkFileDiv.appendChild(topicLink);
-	const fileInput = document.createElement("input");
-	fileInput.setAttribute("type","file");
-	fileInput.setAttribute("name","sourceFile");
-	fileInput.setAttribute("value","");
-	fileInput.setAttribute("id","sourceFile");
-	fileInput.setAttribute("form",POSTForm.name);
-	fileInput.setAttribute("accept",".pdf,.png,.mp3,.mp4,.jpg,.jpeg");
-	fileInput.setAttribute("class","sourceFile"+((isMobile) ? "Mobile":""));
-	linkFileDiv.appendChild(fileInput);
+	const linkFileDiv = createElement("div",["class","linkFileDiv"+((isMobile) ? "Mobile":"")]);
+	linkFileDiv.appendChild(createElement("input",["type","url"],["name","link"],["id","topicLink"],["placeholder","Source Link"],["value",""],["form",POSTForm.name],["class","topicLink"+((isMobile) ? "Mobile":"")]));
+	let acceptList = "";
+	const formatKeys = Object.keys(formatTypes);
+	for (const key of formatKeys)
+	{
+		const types = formatTypes[key].split(",");
+		for (const type of types)
+			acceptList += "."+type+","
+	}
+	acceptList = acceptList.substr(0,acceptList.length-1);
+	linkFileDiv.appendChild(createElement("input",["type","file"],["name","sourceFile"],["value",""],["id","sourceFile"],["form",POSTForm.name],["accept",acceptList],["class","sourceFile"+((isMobile) ? "Mobile":"")]));
 	linkFileDiv.appendChild(document.createElement("hr"));
 	promptContainer.appendChild(linkFileDiv);
-	const sourceDesc = document.createElement("textarea");
-	sourceDesc.setAttribute("class","sourceDescPrompt"+((isMobile) ? "Mobile":""));
-	sourceDesc.setAttribute("required","");
-	sourceDesc.setAttribute("style","");
-	sourceDesc.setAttribute("name","sDesc");
-	sourceDesc.setAttribute("id","sourceDescPrompt");
+	const sourceDesc = createElement("textarea",["class","sourceDescPrompt"+((isMobile) ? "Mobile":"")],["required",""],["style",""],["name","sDesc"],["id","sourceDescPrompt"],["placeholder","Source Description"],["form",POSTForm.name]);
 	sourceDesc.addEventListener("input", function (e){
 		this.style["height"] = "3.3em";
 		this.style["height"] = this.scrollHeight+"px";
 	});
-	sourceDesc.setAttribute("placeholder","Source Description");
-	sourceDesc.setAttribute("form",POSTForm.name);
 	promptContainer.appendChild(sourceDesc);
-	const subTopic = document.createElement("input");
-	subTopic.setAttribute("type","button");
-	subTopic.setAttribute("value","Submit Source");
-	subTopic.setAttribute("onclick","submitSource()");
-	subTopic.setAttribute("class","topicSubButt"+((isMobile) ? "Mobile":""));
-	promptContainer.appendChild(subTopic);
+	promptContainer.appendChild(createElement("input",["type","button"],["value","Submit Source"],["onclick","submitSource()"],["class","topicSubButt"+((isMobile) ? "Mobile":"")]));
 	promptOpen = true;
 }
 
@@ -303,11 +284,42 @@ function openSource(linkoFile,index,type)
 {
 	const promptBG = document.getElementById("promptBGContainer");
 	const promptContainer = document.getElementById("promptContainer");
+	const nextButt = document.getElementById("nextButt");
+	nextButt.onclick = function()
+	{
+ 		const sDivs = document.getElementsByClassName("sourceDiv");
+		for (let i=0;i<sDivs.length-1;i++)
+		{
+			if (sDivs[i].getAttribute("data-selected") == "true")
+			{
+				sDivs[i].setAttribute("data-selected","false");
+				closePrompt();
+				sDivs[i+1].children[1].click();
+				break;
+			}
+		}
+	}
+	nextButt.style["display"] = "block";
+	const prevButt = document.getElementById("prevButt");
+	prevButt.onclick = function()
+	{
+ 		const sDivs = document.getElementsByClassName("sourceDiv");
+		for (let i=1;i<sDivs.length;i++)
+		{
+			if (sDivs[i].getAttribute("data-selected") == "true")
+			{
+				sDivs[i].setAttribute("data-selected","false");
+				closePrompt();
+				sDivs[i-1].children[1].click();
+				break;
+			}
+		}
+	}
+	prevButt.style["display"] = "block";
 	promptBG.style["z-index"] = (promptOpen ? "-100":"100");
 	promptBG.style["filter"] = (promptOpen ? "opacity(0)":"opacity(1)");
 	const sourceArr = SIDs[type]["sources"][((linkoFile) ? 1:0)];
-	const previewDiv = document.createElement("div");
-	previewDiv.setAttribute("class","previewDiv");
+	const previewDiv = createElement("div",["class","previewDiv"]);
 	let preview = null;
 	let desc = "";
 	let urlPath = "";
@@ -315,72 +327,303 @@ function openSource(linkoFile,index,type)
 	{
 		urlPath = sourceArr[index].split("#;#")[0];
 		desc = sourceArr[index].split("#;#")[1];
-		preview = document.createElement("iframe");
-		preview.setAttribute("class","previewIframe");
-		preview.setAttribute("allowfullscreen","false");
-		preview.setAttribute("scrolling","no");
-		preview.setAttribute("allowpaymentrequest","false");
-		preview.setAttribute("loading","lazy");
 		if (!urlPath.includes("http://") && !urlPath.includes("https://"))
 			urlPath = "https://"+urlPath;
-		preview.setAttribute("src",urlPath);
+		preview = createElement("iframe",["class","previewIframe"],["allowfullscreen","false"],["scrolling","no"],["allowpaymentrequest","false"],["loading","lazy"],["src",urlPath]);
 	}
 	else
 	{
 		desc = sourceArr[index][1];
 		urlPath = type+"/"+sourceArr[index][0];
-		if (sourceArr[index][0].includes(".png"))//image
+		const formatKeys = Object.keys(formatTypes);
+		let formatType = "";
+		for (const key of formatKeys)
 		{
-			preview = document.createElement("img");
-			preview.setAttribute("class","previewImg");
-			preview.setAttribute("src",urlPath);
+			const types = formatTypes[key].split(",");
+			for (const type of types)
+			{
+				if (sourceArr[index][0].includes(type))
+				{
+					formatType = key;
+					break;
+				}
+			}
+			if (formatType != "")
+				break;
+		}
+		if (formatType == "image")
+		{
+			preview = createElement("img",
+				["class","previewImg"],
+				["src",urlPath]
+			);
+		}
+		else if (formatType == "video")
+		{
+			preview = createElement("video",
+				["class","previewVid"],
+				["src",urlPath],
+				["controls",""],
+				["autoplay",""],
+				["loop",""],
+				["muted",""]
+			);
+		}
+		else if (formatType == "audio")
+		{
+			preview = createElement("audio",
+				["class","previewAud"],
+				["src",urlPath],
+				["controls",""],
+				["autoplay",""],
+				["loop",""],
+				["muted",""]
+			);
+		}
+		else if (formatType == "other")
+		{
+			preview = createElement("embed",
+				["src",urlPath],
+				["class","previewOth"],
+			);
 		}
 	}
 	preview.setAttribute("id","preview");
 	previewDiv.appendChild(preview);
 	promptContainer.appendChild(previewDiv);
-	const descDiv = document.createElement("div");
-	descDiv.setAttribute("class","descDiv");
-	descDiv.setAttribute("id","descDiv");
-	const descP = document.createElement("p");
-	descP.setAttribute("class","descP");
-	descP.setAttribute("id","descP");
-	descP.setAttribute("style","");
+	const descDiv = createElement("div",["class","descDiv"],["id","descDiv"]);
+	const descP = createElement("p",["class","descP"],["id","descP"],["style",""]);
 	descP.innerHTML = desc;
 	descDiv.appendChild(descP);
 	promptContainer.appendChild(descDiv);
 	centerDescP(descDiv,descP);
-	const sourceButtMenu = document.createElement("div");
-	sourceButtMenu.setAttribute("class","sourceButtMenu");
-	const openButt = document.createElement("input");
-	openButt.setAttribute("src","../../res/misc/"+((linkoFile) ? "openLink.png":"download.png"));
-	openButt.setAttribute("type","image");
-	openButt.setAttribute("class","openDownSource");
-	openButt.setAttribute("onclick",((linkoFile) ? "openLink":"downloadFile")+"("+index+",'"+type+"')");
-	sourceButtMenu.appendChild(openButt);//add more buttons for sharing, relating to other topics and more
+	const sourceButtMenu = createElement("div",["class","sourceButtMenu"]);
+	sourceButtMenu.appendChild(createElement("input",["src","../../res/misc/"+((linkoFile) ? "openLink.png":"download.png")],["type","image"],["class","openDownSource"],["onclick",((linkoFile) ? "openLink":"downloadFile")+"("+index+",'"+type+"')"]));//add more buttons for sharing, relating to other topics and more
 	promptContainer.appendChild(sourceButtMenu);
 	promptOpen = true;
 }
+
 
 function centerDescP(div,p)
 {
 	p.style["height"] = (div.clientHeight - 30)+"px";
 }
 
+function promptLogin()
+{
+	const aButtDiv = document.getElementById("accountDiv");
+	if (loggedIn)
+	{
+		const logoff = document.getElementById("logoff");
+		if (aButtDiv.style["opacity"] == "0")
+		{
+			logoff.disabled = false;
+			aButtDiv.style["opacity"] = "1";
+		}
+		else
+		{
+			logoff.disabled = true;
+			aButtDiv.style["opacity"] = "0";
+		}
+	}
+	else
+	{
+		const login = document.getElementById("tryLoginButt");
+		const register = document.getElementById("registerButt");
+		if (aButtDiv.style["opacity"] == "0")
+		{
+			login.disabled = false;
+			register.disabled = false;
+			aButtDiv.style["opacity"] = "1";
+		}
+		else
+		{
+			login.disabled = true;
+			register.disabled = true;
+			aButtDiv.style["opacity"] = "0";
+		}
+	}
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function refreshChat()
+{
+	document.getElementById("subForm").submit();
+}
+
+function updateChat(chatLog)
+{
+	//console.log(chatLog);
+	//return;
+	const commentChat = document.getElementById("commentChat");
+	commentChat.innerHTML = "";
+	for (const chat of chatLog)
+	{
+		if (chat.length < 4)
+			continue;
+		const timestamp = new Date(parseInt(chat[0]));
+		const chatBubble = createElement("div",["class","chatBubble"],["style","background-color:"+chat[3]+"80"],["title",timestamp.toString()]);
+		const user = createElement("span",["class","chatUser"]);
+		user.innerHTML = chat[1];
+		chatBubble.appendChild(user);
+		const chatMess = createElement("span",["class","chatMess"]);
+		chatMess.innerHTML = chat[2];
+		chatBubble.appendChild(chatMess);
+		commentChat.appendChild(chatBubble);
+	}
+}
+
 function load()
 {
-	document.getElementById("mainTopicTitle").innerHTML = attributes[1];
 	document.title = attributes[1];
-	const display = document.getElementById("display");
-	const displayList = document.getElementById("sourceList");
-	const topicID = document.createElement("span");
-	topicID.innerHTML = "ID: "+attributes[0];
-	topicID.setAttribute("id","topicID");
-	displayList.appendChild(document.createElement("li").appendChild(topicID));
-	const topicDesc = document.createElement("p");
-	topicDesc.innerHTML = "<span>Description:</span>"+attributes[2];
-	topicDesc.setAttribute("id","topicDesc");
-	displayList.appendChild(document.createElement("li").appendChild(topicDesc));
 	for (const style of mobileStyles)
 		document.getElementById(style).setAttribute("class",style+((isMobile) ? "Mobile":""));
+	document.getElementById("homeButt").onclick= function ()
+	{
+		window.open(location.origin+'/RedLines','_self');
+	};
+	refreshChat();
+	refreshChatInterval = setInterval(refreshChat,30000);
+	const mainForm = document.getElementById("mainForm");
+	const login = document.getElementById("tryLoginButt");
+	const register = document.getElementById("registerButt");
+	if (loggedIn)
+	{
+		const commentChat = document.getElementById("commentChat");
+		commentChat.style["height"] = "calc(85% - 2em - 20px)";
+		const respondDiv = document.getElementById("respondDiv");
+		respondDiv.style["height"] = "15%";
+		const textBox = document.getElementById("textBox");
+		textBox.disabled = false;
+		const sendButton = document.getElementById("sendButton");
+		sendButton.disabled = false;
+		sendButton.onclick = function()
+		{
+			mainForm.action = "../../res/php/sendMess.php";
+			document.getElementById("input1").value = JSON.stringify(account);
+			const textBox = document.getElementById("textBox");
+			document.getElementById("input2").value = encodeURIComponent(textBox.value);
+			document.getElementById("input3").value = attributes[0];
+			mainForm.submit();
+			textBox.value = "";
+		}
+		const logButt = document.getElementById("loginButt");
+		logButt.title = account.username;
+		logButt.style["background-color"] = account.color;
+		const accountDiv = document.getElementById("accountDiv");
+		accountDiv.innerHTML = "";
+		const accountKeys = Object.keys(account);
+		for (const detail of accountKeys)
+		{
+			const tmpInfoDiv = document.createElement("div");
+			const tmpDetailLabel = createElement("span",["class","accountInfoLabel"]);
+			tmpDetailLabel.innerHTML = detail;
+			const tmpDetail = createElement("span",["class","accountInfo"]);
+			tmpDetail.innerHTML = account[detail];
+			tmpInfoDiv.appendChild(tmpDetailLabel);
+			tmpInfoDiv.appendChild(tmpDetail);
+			accountDiv.appendChild(tmpInfoDiv);
+		}
+		const logoff = createElement("input",
+			["type","button"],
+			["id","logoff"],
+			["disabled",""],
+			["class","logoff"],
+			["value","Log Off"],
+		);
+		logoff.onclick = function ()
+		{
+			mainForm.action = "../../res/php/logoff.php";
+			mainForm.submit();
+		}
+		accountDiv.appendChild(logoff);
+	}
+	else
+	{
+		login.onclick = function ()
+		{
+			mainForm.action = "../../res/php/auth.php";
+			mainForm.submit();
+		}
+		register.onclick = function ()
+		{
+			const promptBG = document.getElementById("promptBGContainer");
+			const promptContainer = document.getElementById("promptContainer");
+			promptBG.style["z-index"] = (promptOpen ? "-100":"100");
+			promptBG.style["filter"] = (promptOpen ? "opacity(0)":"opacity(1)");
+			mainForm.action = "../../res/php/register.php";
+			const regDiv = createElement("div",["class","regDiv"]);
+			regDiv.appendChild(createElement("input",["required",""],["maxlength","15"],["name","user"],["form",mainForm.name],["type","text"],["placeholder","Username"],["id","regUser"],["value",""]));
+			regDiv.appendChild(createElement("input",
+				["type","password"],
+				["required",""],
+				["maxlength","30"],
+				["minlength","8"],
+				["form",mainForm.name],
+				["name","pass"],
+				["id","regPass"],
+				["placeholder","Password"],
+				["value",""]
+			));
+			const verPassInput = createElement("input",
+				["type","password"],
+				["required",""],
+				["maxlength","30"],
+				["minlength","8"],
+				["id","verPass"],
+				["placeholder","Re-type Password"],
+				["value",""],
+				["style",""]
+			);
+			verPassInput.onkeyup = function()
+			{
+				const pass = document.getElementById("regPass");
+				this.style["background-color"] = (pass.value == this.value) ? "transparent":"rgb(255 0 0 / 50%)";
+			}
+			regDiv.appendChild(verPassInput);
+			const colorDiv = createElement("div",["class","colorDiv"]);
+			const colorLabel = createElement("label",["for","color"]);
+			colorLabel.innerHTML = "Choose a color: ";
+			colorDiv.appendChild(colorLabel);
+			colorDiv.appendChild(createElement("input",["type","color"],["id","color"],["form",mainForm.name],["name","color"],["value",""]));
+			regDiv.appendChild(colorDiv);
+			promptContainer.innerHTML = "";
+			promptContainer.style["padding"] = "10px";
+			promptContainer.style["width"] = "fit-content";
+			promptContainer.appendChild(regDiv);
+			const submitLogin = createElement("input",
+				["type","button"],
+				["value","Register"],
+				["class","regSubmit"],
+				["form",mainForm.name]
+			);
+			submitLogin.onclick = function()
+			{
+				let canSubmit = true;
+				const passRegex = /^[a-zA-Z0-9!@#$%^&*()_+{}\[\]:;<>,.?/~`-]+$/; 
+				const userRegex = /^[a-zA-Z0-9]+$/;
+				const regPass = document.getElementById("regPass");
+				const verPass = document.getElementById("verPass");
+				const regUser = document.getElementById("regUser");
+				canSubmit = (
+					(regPass.value == verPass.value) &&
+					(passRegex.test(regPass.value)) &&
+					(userRegex.test(regUser.value)) &&
+					(regPass.value.length >= 8) &&
+					(regUser.value.length <= 15) &&
+					(regPass.value.length <= 30)
+				);
+				if (!canSubmit)
+					window.alert("Your password must contain:\n- At least one uppercase letter\n- At least one lowercase letter\n- At least one number\n- At least 8 characters\n- At least one of the following symbols: ! @ # $ % ^ & * ( ) _ + { } [ ] : ; < > , . ? / ~ `");
+				else
+					mainForm.submit();
+				//regPass
+			}
+			promptContainer.appendChild(submitLogin);
+			promptOpen = true;
+		}
+	}
 }

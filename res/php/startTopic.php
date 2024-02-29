@@ -24,6 +24,7 @@
 	exec("mkdir $topicPath/S");
 	exec("touch $topicPath/S/.htLinks");
 	exec("touch $topicPath/.htRelated");
+	exec("touch $topicPath/.htChat");
 	if ($link != "")
 	{
 		$links = fopen("$sourcePath/.htLinks","w");

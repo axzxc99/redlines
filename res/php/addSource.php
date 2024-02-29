@@ -19,7 +19,6 @@
 		$fileDesc = fopen("$sourceFolder/" . implode(".",$filenameArr) . ".desc","w");
 		fwrite($fileDesc,$sourceDesc);
 		fclose($fileDesc);
-		//check for file size availability etc
 		move_uploaded_file($_FILES["sourceFile"]["tmp_name"], $sourceFolder . "/" . $filename);
 	}
 	echo "<script>window.open('$topicPath','_parent')</script>";
