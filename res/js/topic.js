@@ -86,9 +86,20 @@ function switchDisplay(type,butt)
 			for (const rTopic of rTopics)
 			{
 				const tmpDiv = createElement("div",["class","relatedDiv"]);
-				const tmpA = createElement("a",["href","#"],["onclick","openTopic("+rTopic[0]+")"]);
+				const tmpA = createElement("a",["class","relatedA"],["href","#"],["onclick","openTopic("+rTopic[0]+")"]);
 				tmpA.innerHTML = rTopic[1];
 				tmpDiv.appendChild(tmpA);
+				if (loggedIn && account["type"] == "o")
+				{
+					tmpA.setAttribute("class",tmpA.className+" relatedAAdm");
+					const unlinkButt = createElement("input",["type","image"],["title","Unrelate Topic"],["src","../../res/misc/unlink.png"],["class","unlinkButt"]);
+					unlinkButt.onclick = function()
+					{
+						if(window.confirm("Unrelate Topic #"+rTopic[0]+"?"))
+							unrelateTopic(rTopic[0]);
+					}
+					tmpDiv.appendChild(unlinkButt);
+				}
 				const tmpSpan = createElement("span");
 				tmpSpan.innerHTML = rTopic[0];
 				tmpDiv.appendChild(tmpSpan);
@@ -177,7 +188,6 @@ function showResults(results)
 			continue;
 		const tmpDiv = createElement("div",["class","resultDiv"]);
 		const tmpA = document.createElement("a",["href","#"],[]);
-		tmpA.setAttribute();
 		tmpA.onclick = function() {
             if (!relateTopic(resultKey)) {
                 window.alert('Topic already related!');
@@ -194,17 +204,33 @@ function showResults(results)
 	searchDiv.style["opacity"] = "1";
 }
 
+function unrelateTopic(ID)
+{
+	let found = false;
+	for (const relatedTopic of rTopics)
+		if (ID == relatedTopic[0])
+			found = true;
+	if (!found)
+		return false;
+	const mainForm = document.getElementById("mainForm");
+	document.getElementById("input1").value = attributes[0];
+	document.getElementById("input2").value = ID;
+	document.getElementById("input3").value = "0";
+	mainForm.action = "../../res/php/relateTopic.php";
+	mainForm.submit();
+	return true;
+}
+
 function relateTopic(ID)
 {
 	for (const relatedTopic of rTopics)
-		if (ID == relatedTopic)
+		if (ID == relatedTopic[0])
 			return false;
 	const mainForm = document.getElementById("mainForm");
-	const input1 = document.getElementById("input1");
-	const input2 = document.getElementById("input2");
+	document.getElementById("input1").value = attributes[0];
+	document.getElementById("input2").value = ID;
+	document.getElementById("input3").value = "1";
 	mainForm.action = "../../res/php/relateTopic.php";
-	input1.value = attributes[0];
-	input2.value = ID;
 	mainForm.submit();
 	return true;
 }
@@ -323,7 +349,7 @@ function openSource(linkoFile,index,type)
 	let preview = null;
 	let desc = "";
 	let urlPath = "";
-	if (linkoFile)
+	if (linkoFile) //link
 	{
 		urlPath = sourceArr[index].split("#;#")[0];
 		desc = sourceArr[index].split("#;#")[1];
@@ -331,7 +357,7 @@ function openSource(linkoFile,index,type)
 			urlPath = "https://"+urlPath;
 		preview = createElement("iframe",["class","previewIframe"],["allowfullscreen","false"],["scrolling","no"],["allowpaymentrequest","false"],["loading","lazy"],["src",urlPath]);
 	}
-	else
+	else //file
 	{
 		desc = sourceArr[index][1];
 		urlPath = type+"/"+sourceArr[index][0];
@@ -399,6 +425,25 @@ function openSource(linkoFile,index,type)
 	centerDescP(descDiv,descP);
 	const sourceButtMenu = createElement("div",["class","sourceButtMenu"]);
 	sourceButtMenu.appendChild(createElement("input",["src","../../res/misc/"+((linkoFile) ? "openLink.png":"download.png")],["type","image"],["class","openDownSource"],["onclick",((linkoFile) ? "openLink":"downloadFile")+"("+index+",'"+type+"')"]));//add more buttons for sharing, relating to other topics and more
+	if (loggedIn && account["type"] == "o")
+	{
+		//tempDesc.setAttribute("class",tempDesc.className+" sourceDescAdm");
+		const delButt = createElement("input",["class","openDownSource"],["type","image"],["src","../../res/misc/trash.png"]);
+		delButt.onclick = function()
+		{
+			const title = (linkoFile ? sourceArr[index].split("#;#")[0]:sourceArr[index][0]);
+			if (window.confirm("Delete \n'"+title+"'?"))
+			{
+				const mainForm = document.getElementById("mainForm");
+				mainForm.action = "../../res/php/delSource.php";
+				document.getElementById("input1").value = JSON.stringify(sourceArr[index]);
+				document.getElementById("input2").value = type+" "+(linkoFile ? "1":"0");
+				document.getElementById("input3").value = attributes[0];
+				mainForm.submit();
+			}
+		}
+		sourceButtMenu.appendChild(delButt);
+	}
 	promptContainer.appendChild(sourceButtMenu);
 	promptOpen = true;
 }
@@ -498,6 +543,28 @@ function load()
 		respondDiv.style["height"] = "15%";
 		const textBox = document.getElementById("textBox");
 		textBox.disabled = false;
+		textBox.addEventListener("keyup", function (e)
+		{
+			if (e.key == "Control")
+				this.setAttribute("data-ctrl","false");
+		});
+		textBox.addEventListener("keydown", function (e)
+		{
+			if (e.key == "Control")
+				this.setAttribute("data-ctrl","true");
+			else if (e.key == "Enter" && this.getAttribute("data-ctrl") == "true")
+			{
+				mainForm.action = "../../res/php/sendMess.php";
+				document.getElementById("input1").value = JSON.stringify(account);
+				document.getElementById("input2").value = encodeURIComponent(this.value);
+				document.getElementById("input3").value = attributes[0];
+				mainForm.submit();
+				this.value = "";
+				const commentChat = document.getElementById("commentChat");
+				commentChat.scrollTo(0,commentChat.scrollHeight);
+			}
+			//console.log(e.key);
+		});
 		const sendButton = document.getElementById("sendButton");
 		sendButton.disabled = false;
 		sendButton.onclick = function()
@@ -509,6 +576,8 @@ function load()
 			document.getElementById("input3").value = attributes[0];
 			mainForm.submit();
 			textBox.value = "";
+			const commentChat = document.getElementById("commentChat");
+			commentChat.scrollTo(0,commentChat.scrollHeight);
 		}
 		const logButt = document.getElementById("loginButt");
 		logButt.title = account.username;

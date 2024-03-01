@@ -250,9 +250,10 @@ body {
     font-family: monospace;
     font-size: 1.75em;
     padding: 5px;
+    height: fit-content;
 }
 
-.topicListDiv a {
+.topicListA {
     text-decoration: none;
     display: block;
     width: calc(100% - 10px);
@@ -262,6 +263,13 @@ body {
     text-wrap: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+}
+
+.TLDAAdm
+{
+    width: calc(95% - 20px);
+    display:inline-block;
+    margin: 0 10px;
 }
 
 .topicListDiv span {
@@ -388,4 +396,18 @@ body {
     border-radius: 10px;
     border: none;
     box-shadow: 0 0 5px 0 black;
+}
+
+.delButt{
+	display: inline-block;
+	float: inline-end;
+	width: calc(5% - 6px);
+	height: calc(3.5em - 6px);
+	border: none;
+	border-radius: 10px;
+	margin: 3px;
+	box-shadow: inset 0 0 5px 0 black;
+	color: red;
+	font-weight: bold;
+	padding: 0;
 }

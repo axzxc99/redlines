@@ -195,25 +195,36 @@ function load()
 {
 	for (const style of mobileStyles)
 		document.getElementById(style).setAttribute("class",style+((isMobile) ? "Mobile":""));
+	const mainForm = document.getElementById("POSTForm");
 	const TPMain = document.getElementById("TPMain");
 	topicValues = Object.values(topics);
 	topicKeys = Object.keys(topics);
 	for (let i=0;i<topicValues.length;i++)
 	{
-		const tmpDiv = document.createElement("div");
-		tmpDiv.setAttribute("class","topicListDiv");
-		const tmpA = document.createElement("a");
-		tmpA.setAttribute("href","#");
-		tmpA.setAttribute("title",topicValues[i][1]);
-		tmpA.setAttribute("onclick","openTopic("+topicKeys[i]+")");
+		const tmpDiv = createElement("div",["class","topicListDiv"]);
+		const tmpA = createElement("a",["href","#"],["title",topicValues[i][1]],["onclick","openTopic("+topicKeys[i]+")"],["class","topicListA"]);
 		tmpA.innerHTML = topicValues[i][0];
 		const tmpSpan = document.createElement("span");
 		tmpSpan.innerHTML = topicKeys[i];
 		tmpA.appendChild(tmpSpan);
 		tmpDiv.appendChild(tmpA);
+		if (loggedIn && account["type"] == "o")
+		{
+			tmpA.setAttribute("class",tmpA.className+" TLDAAdm");
+			const delButt = createElement("input",["class","delButt"],["type","button"],["value","X"]);
+			delButt.onclick = function()
+			{
+				if (window.confirm("Delete Topic #" + topicKeys[i]+"?"))
+				{
+					mainForm.action = "res/php/delTopic.php";
+					document.getElementById("POSTInput1").value = topicKeys[i];
+					mainForm.submit();
+				}
+			}
+			tmpDiv.appendChild(delButt);
+		}
 		TPMain.appendChild(tmpDiv);
 	}	
-	const mainForm = document.getElementById("POSTForm");
 	const login = document.getElementById("tryLoginButt");
 	const register = document.getElementById("registerButt");
 	if (loggedIn)

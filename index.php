@@ -34,6 +34,7 @@
 		<link rel="stylesheet" type="text/css" href="res/misc/style.css">
 		<script src="res/js/const.js"></script>
 		<script src="res/js/init.js"></script>
+		<link rel="icon" type="image/x-icon" href="favicon.ico">
 	</head>
 	<body>
 		<div id="bg"></div>
@@ -42,7 +43,7 @@
 			<input type="button" style="" disabled id="tryLoginButt" value="Login" class="accountButt">
 			<input type="button" style="" disabled id="registerButt" value="Register" class="accountButt">
 		</div>
-		<input type="search" id="topicSearch" class="topicSearch" placeholder="Search Topics" onkeydown="if(event.keyCode == 13) {searchTopics()}" name="search" form="GETForm" >
+		<input type="search" id="topicSearch" class="topicSearch" placeholder="Search Topics" onkeydown="if(event.key == 'Enter') {searchTopics()}" name="search" form="GETForm" >
 		<div class="startSourceDiv" id="startSourceDiv">
 			<div class="startSource">
 				<p class="startTitle pSource">Start topic with a <span>Primary Source</span></p>

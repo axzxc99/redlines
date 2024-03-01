@@ -46,11 +46,14 @@
 	while (($line = fgets($relatedFile)) !== false)
 	{
 		$rTopic = trim($line);
-		$rAttFile = fopen("../$rTopic/.htAttributes","r");
-		fgets($rAttFile);
-		$rTitle = trim(fgets($rAttFile));
-		fclose($rAttFile);
-		array_push($relatedTopics,array($rTopic,$rTitle));
+		if ($rTopic != "")
+		{
+			$rAttFile = fopen("../$rTopic/.htAttributes","r");
+			fgets($rAttFile);
+			$rTitle = trim(fgets($rAttFile));
+			fclose($rAttFile);
+			array_push($relatedTopics,array($rTopic,$rTitle));
+		}
 	}
 	fclose($relatedFile);
 	$loggedIn = isset($_SESSION['id']);
@@ -103,7 +106,7 @@
 				<span class="commenstTitle">Topic Comments</span>
 				<ul id="commentChat" class="commentChat"></ul>
 				<div id="respondDiv" class="respondDiv">
-					<textarea disabled maxlength=300 value="" wrap="soft" placeholder="Send a Message"  autofocus style="" class="textBox" id="textBox"></textarea>
+					<textarea data-ctrl="false" disabled maxlength=300 value="" wrap="soft" placeholder="Send a Message"  autofocus style="" class="textBox" id="textBox"></textarea>
 					<input disabled type="button" value="➤" id="sendButton" class="sendButton">
 				</div>
 			</div>
